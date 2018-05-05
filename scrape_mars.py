@@ -28,6 +28,7 @@ def getLatestNews():
     news_title = titles[0].text.strip() 
     paragraphs = soup.find_all('div',class_='rollover_description_inner')
     news_p = paragraphs[0].text.strip()
+    browser.quit()
     return (news_title,news_p)
 
 
@@ -60,7 +61,7 @@ def getFeaturedImage():
         if n['title'] == featured_article:
             featured_image_url = base_featured_url + n['img']
             break
-
+    browser.quit()
     return(featured_article,featured_image_url)
 
 def getMarsWeather():
@@ -71,6 +72,7 @@ def getMarsWeather():
     soup = BeautifulSoup(html, 'html.parser')    
     tweets = soup.find_all('p',class_='TweetTextSize')
     mars_weather = tweets[0].text
+    browser.quit()
     return(mars_weather)
 
 
@@ -82,7 +84,8 @@ def getMarsFacts():
     facts.columns = (['fact','value'])
     facts.set_index('fact', inplace=True)
     mars_facts = facts.to_dict()
-    return(mars_facts)  
+    browser.quit()
+    return(mars_facts)
 
 def getHemispheres():
     browser = init_browser()
@@ -123,6 +126,7 @@ def getHemispheres():
         print(z[1])
         hemisphere_image_urls.append({'title':z[0],'img_url':z[1]})
 
+    browser.quit()
     return(hemisphere_image_urls)
 
 
