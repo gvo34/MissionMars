@@ -2,15 +2,15 @@
 
 Is a web scraping project with BeatuifulSoup that retrieves the following information:
 
-* Obtain latest news from  'https://mars.nasa.gov/news/'
-* Obtain featured article and imgae from 'https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars'
-* Obtain lastest weather information from twitter 'https://twitter.com/marswxreport?lang=e'
-* Obtain facts about Mars from 'http://space-facts.com/mars/'
-* get the latest images for Mars hemisphere from 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars')
+* Obtain latest [news](https://mars.nasa.gov/news/)
+* Obtain [featured article and image](https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars)
+* Obtain lastest weather information from [twitter](https://twitter.com/marswxreport?lang=e)
+* Obtain [Mars Facts](http://space-facts.com/mars/)
+* Get the latest images of [Mars hemispheres](https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars)
 
 ### Jupyter notebook
 
-The jupyter notebook contains all the steps needed to perform the collected information. See details in [mission_to_mars.ipynb]('https://github.com/gvo34/MissionMars/blob/master/mission_to_mars.ipynb')
+The jupyter notebook contains all the steps needed to perform the collected information. See details in [mission_to_mars.ipynb](https://github.com/gvo34/MissionMars/blob/master/mission_to_mars.ipynb)
 
 ### Application
 
