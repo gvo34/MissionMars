@@ -12,29 +12,38 @@ from bs4 import BeautifulSoup
 import pandas as pd
 from selenium import webdriver
 
-
+##
+#    init_browser: 
+#    initialize the browser for BeatifulSoup by first setting the path for chromedriver
+##
 def init_browser():
-    # @NOTE: Replace the path with your actual path to the chromedriver
     executable_path = {"executable_path": "/usr/local/bin/chromedriver"}
     return Browser("chrome", **executable_path, headless=False)
 
-def getLatestNews():
-    browser = init_browser()
-    url = 'https://mars.nasa.gov/news/'
+
+##
+#    getLatestNews:
+#    get the latest news titles and content from https://mars.nasa.gov/news/
+#    Using beatiful soup to retrieve the main content information collect the data and return 
+#   in the tuple (news_title, news_p) 
+##
+def getLatestNews(browser, url):
+    
     browser.visit(url)
     html = browser.html
     soup = BeautifulSoup(html, 'html.parser')
     titles = soup.find_all('div',class_='content_title')
     news_title = titles[0].text.strip() 
     paragraphs = soup.find_all('div',class_='rollover_description_inner')
-    news_p = paragraphs[0].text.strip()
-    browser.quit()
-    return (news_title,news_p)
+    news_paragraph = paragraphs[0].text.strip()
+    return (news_title,news_paragraph)
 
-
-def getFeaturedImage():
-    browser = init_browser()
-    jpl_url = 'https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars'
+##
+#    getFeaturedImage:
+#   Retrieve the image associated with the featured article
+##
+def getFeaturedImage(browser, jpl_url):
+    
     browser.visit(jpl_url)
     html = browser.html
     soup = BeautifulSoup(html, 'html.parser')
@@ -61,35 +70,30 @@ def getFeaturedImage():
         if n['title'] == featured_article:
             featured_image_url = base_featured_url + n['img']
             break
-    browser.quit()
+    
     return(featured_article,featured_image_url)
 
-def getMarsWeather():
-    browser = init_browser()
-    twitter_url = 'https://twitter.com/marswxreport?lang=e'
+def getMarsWeather(browser, twitter_url):
+    
     browser.visit(twitter_url)
     html = browser.html
     soup = BeautifulSoup(html, 'html.parser')    
     tweets = soup.find_all('p',class_='TweetTextSize')
     mars_weather = tweets[0].text
-    browser.quit()
     return(mars_weather)
 
 
-def getMarsFacts():
-    browser = init_browser()
-    url = 'http://space-facts.com/mars/'
+def getMarsFacts(browser, url):
+    
     tables = pd.read_html(url)    
     facts = tables[0]
     facts.columns = (['fact','value'])
     facts.set_index('fact', inplace=True)
     mars_facts = facts.to_dict()
-    browser.quit()
     return(mars_facts)
 
-def getHemispheres():
-    browser = init_browser()
-    hem_url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
+def getHemispheres(browser, hem_url):
+    
     hemisphere_image_urls =[]
     browser.visit(hem_url)
     html = browser.html
@@ -109,7 +113,8 @@ def getHemispheres():
     # get the image after clicking each ref
     img_src = []
     count = 1
-    base_hem_url = "https://astrogeology.usgs.gov"
+    #base_hem_url = "https://astrogeology.usgs.gov"
+    base_hem_url = hem_url[0:30]
     for i in img_results:
         ref = base_hem_url + i
         browser.visit(ref)
@@ -126,48 +131,37 @@ def getHemispheres():
         print(z[1])
         hemisphere_image_urls.append({'title':z[0],'img_url':z[1]})
 
-    browser.quit()
+   
     return(hemisphere_image_urls)
 
 
 
-def storeMongo(news_title,news_p,featured_article,featured_image_url,mars_weather,mars_facts,hemisphere_image_urls):
-    import pymongo
-
-    # The default port used by MongoDB is 27017
-    conn = 'mongodb://localhost:27017'
-    client = pymongo.MongoClient(conn)
-    # Define the 'classDB' database in Mongo
-
-    db = client.marsDB
-    db.marsnews.drop()
-    db.marsnews.insert_one(
-    {
-        'news_title': news_title,
-        'news_p': news_p,
-        'featured_article': featured_article,
-        'featured_image': featured_image_url,
-        'mars_weather':mars_weather,
-        'mars_facts':mars_facts,
-        'hemisphere':hemisphere_image_urls
-    })
-
-
 def scrape():
-    news_title, news_p = getLatestNews()
-    time.sleep(1)
-    featured_article,featured_image_url = getFeaturedImage()
-    time.sleep(1)
-    mars_weather = getMarsWeather()
-    time.sleep(1)
-    mars_facts = getMarsFacts()
-    time.sleep(1)
-    hemisphere_image_urls = getHemispheres()
+    wbrowser = init_browser()
+    mars = {}
+
+    title,paragraph = getLatestNews(wbrowser, 'https://mars.nasa.gov/news/')
+    mars["news_title"] = title
+    mars["news_paragrapg"] = paragraph
     time.sleep(1)
     
-    storeMongo(news_title,news_p,
-        featured_article,featured_image_url,
-        mars_weather,
-        mars_facts,
-        hemisphere_image_urls)
-    
+    featured_article,featured_image_url = getFeaturedImage(wbrowser, 'https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars')
+    mars["featured_article"] = featured_article
+    mars["featured_image"] = featured_image_url
+    time.sleep(1)
+
+    weather = getMarsWeather(wbrowser, 'https://twitter.com/marswxreport?lang=e')
+    mars["weather"]=weather
+    time.sleep(1)
+
+    facts = getMarsFacts(wbrowser,'http://space-facts.com/mars/')
+    mars["facts"]=facts
+    time.sleep(1)
+
+    hemisphere_image_urls = getHemispheres(wbrowser, 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars')
+    mars["hemispheres"] = hemisphere_image_urls
+    time.sleep(1)
+
+    wbrowser.quit()
+
+    return mars
