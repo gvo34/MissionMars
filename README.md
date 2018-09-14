@@ -14,5 +14,5 @@ The jupyter notebook contains all the steps needed to perform the collected info
 
 ### Application
 
-Using a flask app the same steps are reproduced relying on a local mongodb collection to temporaarly hold the data.
+Using a flask app the same steps are reproduced relying on a local mongodb collection to temporarly hold the data.
 The app renders information from the mongodb collection. The flask app endpoint /scrape executes the steps to obtain the latest information and refreshes the data stored in the collection.
